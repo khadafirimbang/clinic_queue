@@ -1,0 +1,11 @@
+#speak-again {
+    cursor: pointer;
+}
+h1 {
+    text-align: center;
+}
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
