@@ -22,7 +22,7 @@
 								</a>
 							</li>
 							<li>
-								<a href="book-appointment.php">
+								<a href="appointment-slot.php">
 									<div class="item-content">
 										<div class="item-media">
 						

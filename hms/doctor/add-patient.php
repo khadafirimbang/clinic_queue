@@ -18,9 +18,14 @@ if (strlen($_SESSION['id']) == 0) {
         $patage = $_POST['patage'];
         $medhis = $_POST['medhis'];
         $service = $_POST['service']; // Get the selected specialization
-
-        // Insert into tblpatient
-        $sql = mysqli_query($con, "INSERT INTO tblpatient(Docid, PatientLastname, PatientFirstname, PatientMiddlename, PatientContno, PatientEmail, PatientGender, PatientAdd, PatientAge, PatientMedhis, service) VALUES('$docid', '$patlastname', '$patfirstname', '$patmiddlename', '$patcontact', '$patemail', '$gender', '$pataddress', '$patage', '$medhis', '$service')");
+    
+        // Retrieve the room number based on the selected specialization
+        $room_query = mysqli_query($con, "SELECT room FROM doctorspecilization WHERE specilization = '$service'");
+        $room_row = mysqli_fetch_assoc($room_query);
+        $room_number = $room_row['room'] ?? ''; // Default to empty if not found
+    
+        // Insert into tblpatient including the room number
+        $sql = mysqli_query($con, "INSERT INTO tblpatient(Docid, PatientLastname, PatientFirstname, PatientMiddlename, PatientContno, PatientEmail, PatientGender, PatientAdd, PatientAge, PatientMedhis, service, room) VALUES('$docid', '$patlastname', '$patfirstname', '$patmiddlename', '$patcontact', '$patemail', '$gender', '$pataddress', '$patage', '$medhis', '$service', '$room_number')");
         
         if ($sql) {
             // Get the current date in the Philippines
@@ -35,7 +40,7 @@ if (strlen($_SESSION['id']) == 0) {
         
             // Insert into patient_ques
             $patient_id = mysqli_insert_id($con); // Get the last inserted patient ID
-            $sql_queue = mysqli_query($con, "INSERT INTO patient_ques(lastname, firstname, middlename, queue_number, queue_date, status, service) VALUES('$patlastname', '$patfirstname', '$patmiddlename', '$queue_number', '$queue_date', '$status', '$service')");
+            $sql_queue = mysqli_query($con, "INSERT INTO patient_ques(lastname, firstname, middlename, queue_number, queue_date, status, service, room) VALUES('$patlastname', '$patfirstname', '$patmiddlename', '$queue_number', '$queue_date', '$status', '$service', '$room_number')");
         
             // Check if the insertion into patient_ques was successful
             if ($sql_queue) {
@@ -47,7 +52,7 @@ if (strlen($_SESSION['id']) == 0) {
         } else {
             echo "<script>alert('Error adding patient info: " . mysqli_error($con) . "');</script>";
         }
-    }
+    }    
 ?>
 <!DOCTYPE html>
 <html lang="en">
