@@ -27,7 +27,10 @@ if (isset($_POST['submit'])) {
         $updateQuery = mysqli_query($con, "UPDATE doctorspecilization SET avail_slots = avail_slots - 1 WHERE specilization = '$specilization'");
         
         if ($updateQuery) {
-            echo "<script>alert('Your appointment successfully booked');</script>";
+            echo "<script>
+            alert('Your appointment successfully booked');
+            window.location.href = 'appointment-history.php';
+            </script>";
         } else {
             echo "<script>alert('Your appointment was booked but failed to update slots. Error: " . mysqli_error($con) . "');</script>";
         }
@@ -64,6 +67,47 @@ if (isset($_POST['submit'])) {
         if (specialization) {
             getdoctor(specialization);
         }
+        
+        // Handle the show confirmation modal button click
+        $("#showConfirmModal").click(function(e) {
+            e.preventDefault();
+            
+            // Validate form before showing modal
+            var isValid = true;
+            $("#appointmentForm").find('select, input').each(function() {
+                if($(this).prop('required') && !$(this).val()) {
+                    isValid = false;
+                    $(this).addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid');
+                }
+            });
+            
+            if(!isValid) {
+                alert("Please fill all required fields.");
+                return false;
+            }
+            
+            // Get the form values to display in the modal
+            var doctor = $("#doctor option:selected").text();
+            var date = $("input[name='appdate']").val();
+            var time = $("input[name='apptime']").val();
+            
+            // Update the modal content with appointment details
+            $("#confirmDoctorName").text(doctor);
+            $("#confirmSpecialization").text("<?php echo htmlentities($specilization); ?>");
+            $("#confirmDate").text(date);
+            $("#confirmTime").text(time);
+            
+            // Show the modal
+            $("#confirmationModal").modal('show');
+        });
+        
+        // Handle the actual form submission
+        $("#confirmAppointment").click(function() {
+            // Submit the form directly
+            document.getElementById("realSubmitBtn").click();
+        });
     });
 
     function getdoctor(val) {
@@ -77,6 +121,12 @@ if (isset($_POST['submit'])) {
         });
     }
     </script>
+
+    <style>
+        .go-back-btn{
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <div id="app">        
@@ -108,7 +158,7 @@ if (isset($_POST['submit'])) {
                                             <div class="panel-body">
                                                 <p style="color:red;"><?php echo htmlentities($_SESSION['msg1']);?>
                                                 <?php echo htmlentities($_SESSION['msg1']="");?></p>    
-                                                <form role="form" name="book" method="post">
+                                                <form role="form" name="book" method="post" id="appointmentForm">
                                                     <div class="form-group">
                                                         <label>Specialization</label>
                                                         <input type="text" class="form-control" value="<?php echo htmlentities($specilization); ?>" readonly>
@@ -131,7 +181,16 @@ if (isset($_POST['submit'])) {
                                                         <input class="form-control" name="apptime" id="timepicker1" required="required">eg : 10:00 PM
                                                     </div>                                                        
                                                     
-                                                    <button type="submit" name="submit" class="btn btn-o btn-primary">Submit</button>
+                                                    <!-- This is the button that shows the modal -->
+                                                    <button type="button" id="showConfirmModal" class="btn btn-o btn-primary">Book Appointment</button>
+                                                    <div class="go-back-btn">
+                                                        <a href="appointment-slot.php" class="btn btn-red">
+                                                            <i></i> Go Back
+                                                        </a>
+                                                    </div>
+                                                    
+                                                    <!-- This is the actual submit button that will be clicked programmatically -->
+                                                    <button type="submit" id="realSubmitBtn" name="submit" value="1" class="btn btn-o btn-primary" style="display:none;">Submit</button>
                                                 </form>
                                             </div>
                                         </div>
@@ -142,6 +201,45 @@ if (isset($_POST['submit'])) {
                     </div>
                 </div>
             </div>
+            
+            <!-- Confirmation Modal -->
+            <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="confirmationModalLabel">Confirm Your Appointment</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>Please confirm your appointment details:</p>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Specialization</th>
+                                    <td id="confirmSpecialization"></td>
+                                </tr>
+                                <tr>
+                                    <th>Doctor</th>
+                                    <td id="confirmDoctorName"></td>
+                                </tr>
+                                <tr>
+                                    <th>Date</th>
+                                    <td id="confirmDate"></td>
+                                </tr>
+                                <tr>
+                                    <th>Time</th>
+                                    <td id="confirmTime"></td>
+                                </tr>
+                            </table>
+                            <p class="text-warning"><small>Note: Once confirmed, appointment slots will be reserved for you.</small></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" id="confirmAppointment">Confirm Appointment</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
         <?php include('include/footer.php');?>
         <?php include('include/setting.php');?>
         </div>

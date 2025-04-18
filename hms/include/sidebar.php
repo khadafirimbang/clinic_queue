@@ -64,21 +64,6 @@
 									</div>
 								</a>
 							</li>
-							<li>
-								<a href="chatbot/index.php">
-									<div class="item-content">
-										<div class="item-media">
-						
-										</div>
-										<div class="item-inner">
-											<span class="title"> <center>
-											  <strong><em>
-												  <span style="color: #FFFFFF">CHAT SUPPORT</span></em></strong>
-										  </center></span>
-										</div>
-									</div>
-								</a>
-							</li>
 
 						</ul>
 					

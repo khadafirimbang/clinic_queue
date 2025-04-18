@@ -11,6 +11,17 @@ if (strlen($_SESSION['id']) == 0) {
         $_SESSION['msg'] = "Appointment canceled !!";
     }
 
+    // Handle Approve and Complete actions
+    if (isset($_GET['approve'])) {
+        mysqli_query($con, "UPDATE appointment SET bookingStatus='Approved' WHERE id ='" . $_GET['id'] . "'");
+        $_SESSION['msg'] = "Appointment approved!";
+    }
+
+    if (isset($_GET['complete'])) {
+        mysqli_query($con, "UPDATE appointment SET bookingStatus='Completed' WHERE id ='" . $_GET['id'] . "'");
+        $_SESSION['msg'] = "Appointment completed!";
+    }
+
     // Initialize search variable
     $search = '';
     if (isset($_GET['search'])) {
@@ -81,6 +92,7 @@ if (strlen($_SESSION['id']) == 0) {
                                             <th>Appointment Date / Time</th>
                                             <th>Appointment Creation Date</th>
                                             <th>Current Status</th>
+                                            <th>Booking Status</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -126,14 +138,26 @@ if (($row['userStatus'] == 1) && ($row['doctorStatus'] == 1)) {
 }
 ?>
                                             </td>
+                                            <td><?php echo $row['bookingStatus'];?></td>
                                             <td>
-                                                <div class="visible-md visible-lg hidden-sm hidden-xs">
-                                                    <?php if (($row['userStatus'] == 1) && ($row['doctorStatus'] == 1)) { ?>
-                                                        <a href="appointment-history.php?id=<?php echo $row['id']?>&cancel=update" onClick="return confirm('Are you sure you want to cancel this appointment?')" class="btn btn-info btn-xs" title="Cancel Appointment" tooltip-placement="top" tooltip="Remove">Cancel</a>
-                                                    <?php } else {
-                                                        echo "Canceled";
-                                                    } ?>
-                                                </div>
+                                            <div class="visible-md visible-lg hidden-sm hidden-xs">
+        <?php if (($row['userStatus'] == 1) && ($row['doctorStatus'] == 1)) { ?>
+            <?php if ($row['bookingStatus'] == 'Approved' || $row['bookingStatus'] == 'Completed') { ?>
+                <button class="btn btn-danger btn-xs" title="Cancel Appointment" disabled>Cancel</button>
+            <?php } else { ?>
+                <a href="appointment-history.php?id=<?php echo $row['id']?>&cancel=update" onClick="return confirm('Are you sure you want to cancel this appointment?')" class="btn btn-danger btn-xs" title="Cancel Appointment">Cancel</a>
+            <?php } ?>
+        <?php } else {
+            echo "Canceled";
+        } ?>
+
+        <!-- Approve and Complete buttons -->
+        <?php if ($row['bookingStatus'] == 'Pending') { ?>
+            <a href="appointment-history.php?id=<?php echo $row['id']?>&approve=update" class="btn btn-success btn-xs" style="margin-top: 5px;" title="Approve Appointment">Approve</a>
+        <?php } elseif ($row['bookingStatus'] == 'Approved') { ?>
+            <a href="appointment-history.php?id=<?php echo $row['id']?>&complete=update" class="btn btn-warning btn-xs" style="margin-top: 5px;" title="Complete Appointment">Complete</a>
+        <?php } ?>
+    </div>
                                             </td>
                                         </tr>
 <?php 

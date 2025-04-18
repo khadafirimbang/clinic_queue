@@ -7,7 +7,7 @@ if(strlen($_SESSION['id']==0)) {
   } else{
 if(isset($_GET['cancel']))
 		  {
-		          mysqli_query($con,"update appointment set userStatus='0' where id = '".$_GET['id']."'");
+		          mysqli_query($con,"update appointment set userStatus='0', bookingStatus='Cancelled' where id = '".$_GET['id']."'");
                   $_SESSION['msg']="Your appointment canceled !!";
 		  }
 ?>
@@ -72,8 +72,9 @@ if(isset($_GET['cancel']))
 												<th>Specialization</th>
 												<th>&nbsp;</th>
 												<th>Appointment Date / Time </th>
-												<th>Appointment Creation Date  </th>
+												<th>Reference ID</th>
 												<th>Current Status</th>
+												<th>Booking Status</th>
 												<th>Action</th>
 												
 											</tr>
@@ -94,7 +95,7 @@ while($row=mysqli_fetch_array($sql))
 												<td><?php echo $row['appointmentDate'];?> / <?php echo
 												 $row['appointmentTime'];?>
 												</td>
-												<td><?php echo $row['postingDate'];?></td>
+												<td><?php echo $row['ref'];?></td>
 												<td>
 <?php if(($row['userStatus']==1) && ($row['doctorStatus']==1))  
 {
@@ -113,18 +114,19 @@ if(($row['userStatus']==1) && ($row['doctorStatus']==0))
 
 
 												?></td>
+												<td><?php echo $row['bookingStatus'];?></td>
 												<td >
 												<div class="visible-md visible-lg hidden-sm hidden-xs">
-							<?php if(($row['userStatus']==1) && ($row['doctorStatus']==1))  
-{ ?>
-
-													
-	<a href="appointment-history.php?id=<?php echo $row['id']?>&cancel=update" onClick="return confirm('Are you sure you want to cancel this appointment ?')"class="btn btn-primary btn-xs" title="Cancel Appointment" tooltip-placement="top" tooltip="Remove">Cancel</a>
-	<?php } else {
-
-		echo "Canceled";
-		} ?>
-												</div>
+        <?php if (($row['userStatus'] == 1) && ($row['doctorStatus'] == 1)) { ?>
+            <?php if ($row['bookingStatus'] == 'Approved' || $row['bookingStatus'] == 'Completed') { ?>
+                <button class="btn btn-danger btn-xs" title="Cancel Appointment" disabled>Cancel</button>
+            <?php } else { ?>
+                <a href="appointment-history.php?id=<?php echo $row['id']?>&cancel=update" onClick="return confirm('Are you sure you want to cancel this appointment?')" class="btn btn-danger btn-xs" title="Cancel Appointment">Cancel</a>
+            <?php } ?>
+        <?php } else {
+            echo "Canceled";
+        } ?>
+    </div>
 												<div class="visible-xs visible-sm hidden-md hidden-lg">
 													<div class="btn-group" dropdown is-open="status.isopen">
 														<button type="button" class="btn btn-primary btn-o btn-sm dropdown-toggle" dropdown-toggle>

@@ -1,10 +1,23 @@
 <?php
 // Include the database connection
 include 'include/config.php';
+session_start(); // Start the session to access user data
+
+// Assuming you have a user ID stored in the session
+$userId = $_SESSION['id']; // Get the logged-in user's ID
 
 // SQL query to fetch data from the doctorspecilization table
 $sql = "SELECT specilization, max_patients, avail_slots, open_time, close_time FROM doctorspecilization";
 $result = $con->query($sql);
+
+// SQL query to check if the user has already booked an appointment
+$booking_check_sql = "SELECT COUNT(*) as booking_count FROM appointment WHERE userId = ? AND bookingStatus = 'Pending' OR bookingStatus = 'Approved'";
+$stmt = $con->prepare($booking_check_sql);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$booking_result = $stmt->get_result();
+$booking_row = $booking_result->fetch_assoc();
+$has_booking = $booking_row['booking_count'] > 0;
 
 // Start HTML output
 ?>
@@ -38,7 +51,7 @@ $result = $con->query($sql);
         
         <!-- Go Back Button - Top Left above table -->
         <div class="go-back-btn">
-            <a href="javascript:history.back()" class="btn btn-red">
+            <a href="dashboard.php" class="btn btn-red">
                 <i class="fa fa-arrow-left"></i> Go Back
             </a>
         </div>
@@ -68,7 +81,9 @@ $result = $con->query($sql);
                             <td><?php echo htmlspecialchars($row['avail_slots']); ?></td>
                             <td><?php echo htmlspecialchars($row['max_patients']); ?></td>
                             <td>
-                                <?php if ($row['avail_slots'] > 0): ?>
+                                <?php if ($has_booking): ?>
+                                    <span class="text-danger">Already Booked</span>
+                                <?php elseif ($row['avail_slots'] > 0): ?>
                                     <a href="book-appointment.php?specialization=<?php echo urlencode($row['specilization']); ?>" class="btn btn-primary">Book Now</a>
                                 <?php else: ?>
                                     <span class="text-danger">Fully Booked</span>
