@@ -16,12 +16,14 @@ if (isset($_POST['submit'])) {
     $userstatus = 1;
     $docstatus = 1;
 
+    // Generate the reference ID with uppercase letters
+    $ref = strtoupper(substr($specilization, 0, 2)) . $userid . str_replace(['-', ':'], '', $appdate . $time);
+
     // Insert appointment into the database
-    $query = mysqli_query($con, "INSERT INTO appointment(doctorSpecialization, doctorId, userId, appointmentDate, appointmentTime, userStatus, doctorStatus) VALUES('$specilization', '$doctorid', '$userid', '$appdate', '$time', '$userstatus', '$docstatus')");
+    $query = mysqli_query($con, "INSERT INTO appointment(ref, doctorSpecialization, doctorId, userId, appointmentDate, appointmentTime, userStatus, doctorStatus) VALUES('$ref', '$specilization', '$doctorid', '$userid', '$appdate', '$time', '$userstatus', '$docstatus')");
     
     if ($query) {
-        // Decrement avail_slots in doctorspecilization table (assuming we want to reduce available slots)
-        // Changed 'specialization' to 'specilization' to match your table column
+        // Decrement avail_slots in doctorspecilization table
         $updateQuery = mysqli_query($con, "UPDATE doctorspecilization SET avail_slots = avail_slots - 1 WHERE specilization = '$specilization'");
         
         if ($updateQuery) {
@@ -33,6 +35,7 @@ if (isset($_POST['submit'])) {
         echo "<script>alert('Failed to book your appointment. Error: " . mysqli_error($con) . "');</script>";
     }
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
