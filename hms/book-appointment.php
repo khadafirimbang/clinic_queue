@@ -16,11 +16,15 @@ if (isset($_POST['submit'])) {
     $userstatus = 1;
     $docstatus = 1;
 
+    // Convert time to 24-hour format
+    $dateTime = DateTime::createFromFormat('h:i A', $time); // Adjust format as necessary
+    $time24 = $dateTime->format('H:i'); // Get time in 24-hour format
+
     // Generate the reference ID with uppercase letters
-    $ref = strtoupper(substr($specilization, 0, 2)) . $userid . str_replace(['-', ':'], '', $appdate . $time);
+    $ref = strtoupper(substr($specilization, 0, 2)) . $userid . str_replace(['-', ':'], '', $appdate . $time24);
 
     // Insert appointment into the database
-    $query = mysqli_query($con, "INSERT INTO appointment(ref, doctorSpecialization, doctorId, userId, appointmentDate, appointmentTime, userStatus, doctorStatus) VALUES('$ref', '$specilization', '$doctorid', '$userid', '$appdate', '$time', '$userstatus', '$docstatus')");
+    $query = mysqli_query($con, "INSERT INTO appointment(ref, doctorSpecialization, doctorId, userId, appointmentDate, appointmentTime, userStatus, doctorStatus) VALUES('$ref', '$specilization', '$doctorid', '$userid', '$appdate', '$time24', '$userstatus', '$docstatus')");
     
     if ($query) {
         // Decrement avail_slots in doctorspecilization table
