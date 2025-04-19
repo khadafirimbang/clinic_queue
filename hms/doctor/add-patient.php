@@ -18,6 +18,10 @@ if (strlen($_SESSION['id']) == 0) {
         $patage = $_POST['patage'];
         $medhis = $_POST['medhis'];
         $service = $_POST['service']; // Get the selected specialization
+        $priorityOption = $_POST['priority']; // Get the selected priority option
+    
+        // Determine priority value
+        $priority = !empty($priorityOption) ? 1 : 0;
     
         // Retrieve the room number based on the selected specialization
         $room_query = mysqli_query($con, "SELECT room FROM doctorspecilization WHERE specilization = '$service'");
@@ -40,8 +44,8 @@ if (strlen($_SESSION['id']) == 0) {
         
             // Insert into patient_ques
             $patient_id = mysqli_insert_id($con); // Get the last inserted patient ID
-            $sql_queue = mysqli_query($con, "INSERT INTO patient_ques(lastname, firstname, middlename, queue_number, queue_date, status, service, room) VALUES('$patlastname', '$patfirstname', '$patmiddlename', '$queue_number', '$queue_date', '$status', '$service', '$room_number')");
-        
+            $sql_queue = mysqli_query($con, "INSERT INTO patient_ques(lastname, firstname, middlename, queue_number, queue_date, status, service, room, priority) VALUES('$patlastname', '$patfirstname', '$patmiddlename', '$queue_number', '$queue_date', '$status', '$service', '$room_number', '$priority')");
+            
             // Check if the insertion into patient_ques was successful
             if ($sql_queue) {
                 echo "<script>alert('Patient info added Successfully');</script>";
@@ -52,7 +56,8 @@ if (strlen($_SESSION['id']) == 0) {
         } else {
             echo "<script>alert('Error adding patient info: " . mysqli_error($con) . "');</script>";
         }
-    }    
+    }
+       
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -170,6 +175,16 @@ if (strlen($_SESSION['id']) == 0) {
                                                                 echo "<option value='" . $row['specilization'] . "'>" . $row['specilization'] . "</option>";
                                                             }
                                                             ?>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="priority">Others (Optional)</label>
+                                                        <select name="priority" class="form-control" id="priority">
+                                                            <option value="">Select Option (Optional)</option>
+                                                            <option value="Senior Citizen">Senior Citizen</option>
+                                                            <option value="Pregnant">Pregnant</option>
+                                                            <option value="PWD">PWD</option>
+                                                            <option value="Emergency Purpose">Emergency Purpose</option>
                                                         </select>
                                                     </div>
                                                     <button type="submit" name="submit" id="submit" class="btn btn-o btn-primary">Add</button>
