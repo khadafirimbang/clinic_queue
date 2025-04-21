@@ -77,7 +77,6 @@
             <tr>
                 <th>Queue Number</th>
                 <th>Name</th>
-                <th>Service</th>
                 <th>Room No</th>
                 <th>Status</th>
             </tr>
@@ -92,7 +91,6 @@
             <tr>
                 <th>Queue Number</th>
                 <th>Name</th>
-                <th>Service</th>
                 <th>Room No</th>
                 <th>Status</th>
             </tr>
@@ -303,7 +301,6 @@
                         row.innerHTML = `
                             <td>${formattedQueueNo}</td>
                             <td>${formattedName}</td>
-                            <td>${patient.service}</td>
                             <td>${patient.room}</td>
                             <td>${patient.status}</td>
                         `;
@@ -336,7 +333,6 @@
                         row.innerHTML = `
                             <td>${formattedQueueNo}</td>
                             <td>${formattedName}</td> <!-- Use the formatted name -->
-                            <td>${patient.service}</td>
                             <td>${patient.room}</td>
                             <td>${patient.status}</td>
                         `;

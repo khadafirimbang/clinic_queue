@@ -49,7 +49,7 @@
 								<ul class="sub-menu">
 									
 									<li>
-										<em><a href="add-patient.php">
+										<em><a href="add-patient.php" target="_blank">
 											<span class="title">
 												<span style="color: #FFFFFF">Add Patient</span>
 										</a>

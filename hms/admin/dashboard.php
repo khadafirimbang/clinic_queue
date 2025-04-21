@@ -140,26 +140,7 @@ Total Patients :<?php echo htmlentities($num_rows);
 
 
 
-			<div class="col-sm-4">
-									<div class="panel panel-white no-radius text-center">
-										<div class="panel-body">
-											<span class="fa-stack fa-2x"> <i class="ti-files fa-1x text-primary"></i> <i class="fa fa-terminal fa-stack-1x fa-inverse"></i> </span>
-											<h2 class="StepTitle"><strong>UNREAD DM</strong></h2>
-											
-											<p class="links cl-effect-1">
-												<a href="book-appointment.php">
-													<a href="unread-queries.php">
-												<?php 
-$sql= mysqli_query($con,"SELECT * FROM tblcontactus where  IsRead is null");
-$num_rows22 = mysqli_num_rows($sql);
-?>
-											Total New DMs :<?php echo htmlentities($num_rows22);   ?>	
-												</a>
-												</a>
-											</p>
-										</div>
-									</div>
-								</div>
+			
 
 
 

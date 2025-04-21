@@ -16,9 +16,37 @@ if (isset($_POST['submit'])) {
     $userstatus = 1;
     $docstatus = 1;
 
+    // Validate appointment date
+    $dayOfWeek = date('l', strtotime($appdate)); // Get the day of the week
+    if (!in_array($dayOfWeek, ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'])) {
+        echo "<script>alert('Please select a weekday (Monday to Friday) for your appointment.');</script>";
+        exit;
+    }
+
     // Convert time to 24-hour format
-    $dateTime = DateTime::createFromFormat('h:i A', $time); // Adjust format as necessary
+    $dateTime = DateTime::createFromFormat('h:i A', $time);
+    if (!$dateTime) {
+        echo "<script>alert('Invalid time format. Please use HH:MM AM/PM.');</script>";
+        exit;
+    }
     $time24 = $dateTime->format('H:i'); // Get time in 24-hour format
+
+    // Validate appointment time
+    $timeHour = (int)$dateTime->format('H'); // Get the hour in 24-hour format
+    if ($timeHour < 8 || $timeHour >= 17) {
+        echo "<script>alert('Please select a time between 8:00 AM and 5:00 PM.');</script>";
+        exit;
+    }
+
+    // Combine date and time for future validation
+    $appointmentDateTime = new DateTime("$appdate $time24");
+    $currentDateTime = new DateTime();
+
+    // Check if the appointment is in the future
+    if ($appointmentDateTime <= $currentDateTime) {
+        echo "<script>alert('Please select a future date and time for your appointment.');</script>";
+        exit;
+    }
 
     // Generate the reference ID with uppercase letters
     $ref = strtoupper(substr($specilization, 0, 2)) . $userid . str_replace(['-', ':'], '', $appdate . $time24);
@@ -43,6 +71,7 @@ if (isset($_POST['submit'])) {
     }
 }
 
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -66,53 +95,90 @@ if (isset($_POST['submit'])) {
     <script src="vendor/jquery/jquery.min.js"></script>
     <script>
     $(document).ready(function() {
-        // Call getdoctor with the specialization when the page loads
-        var specialization = "<?php echo htmlentities($specilization); ?>";
-        if (specialization) {
-            getdoctor(specialization);
+    // Call getdoctor with the specialization when the page loads
+    var specialization = "<?php echo htmlentities($specilization); ?>";
+    if (specialization) {
+        getdoctor(specialization);
+    }
+    
+    // Handle the show confirmation modal button click
+    $("#showConfirmModal").click(function(e) {
+        e.preventDefault();
+        
+        // Validate form before showing modal
+        var isValid = true;
+        $("#appointmentForm").find('select, input').each(function() {
+            if($(this).prop('required') && !$(this).val()) {
+                isValid = false;
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        // Additional validation for date and time
+        var date = $("input[name='appdate']").val();
+        var time = $("input[name='apptime']").val();
+        var dateObj = new Date(date);
+        var dayOfWeek = dateObj.getUTCDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+        // Check if the selected day is a weekday
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            alert("Please select a weekday (Monday to Friday) for your appointment.");
+            return false;
+        }
+
+        // Check if the time is within the allowed range
+        var timeParts = time.match(/(\d+):(\d+) (AM|PM)/);
+        if (!timeParts) {
+            alert("Invalid time format. Please use HH:MM AM/PM.");
+            return false;
         }
         
-        // Handle the show confirmation modal button click
-        $("#showConfirmModal").click(function(e) {
-            e.preventDefault();
-            
-            // Validate form before showing modal
-            var isValid = true;
-            $("#appointmentForm").find('select, input').each(function() {
-                if($(this).prop('required') && !$(this).val()) {
-                    isValid = false;
-                    $(this).addClass('is-invalid');
-                } else {
-                    $(this).removeClass('is-invalid');
-                }
-            });
-            
-            if(!isValid) {
-                alert("Please fill all required fields.");
-                return false;
-            }
-            
-            // Get the form values to display in the modal
-            var doctor = $("#doctor option:selected").text();
-            var date = $("input[name='appdate']").val();
-            var time = $("input[name='apptime']").val();
-            
-            // Update the modal content with appointment details
-            $("#confirmDoctorName").text(doctor);
-            $("#confirmSpecialization").text("<?php echo htmlentities($specilization); ?>");
-            $("#confirmDate").text(date);
-            $("#confirmTime").text(time);
-            
-            // Show the modal
-            $("#confirmationModal").modal('show');
-        });
+        var hour = parseInt(timeParts[1]);
+        var minute = parseInt(timeParts[2]);
+        var ampm = timeParts[3];
         
-        // Handle the actual form submission
-        $("#confirmAppointment").click(function() {
-            // Submit the form directly
-            document.getElementById("realSubmitBtn").click();
-        });
+        // Convert to 24-hour format for validation
+        if (ampm === 'PM' && hour < 12) {
+            hour += 12; // Convert PM hour
+        } else if (ampm === 'AM' && hour === 12) {
+            hour = 0; // Convert 12 AM to 0
+        }
+
+        // Validate time range (8 AM to 5 PM)
+        if (hour < 8 || hour >= 17) {
+            alert("Please select a time between 8:00 AM and 5:00 PM.");
+            return false;
+        }
+
+        // Combine date and time for future validation
+        var appointmentDateTime = new Date(date + ' ' + time);
+        var currentDateTime = new Date();
+
+        // Check if the appointment is in the future
+        if (appointmentDateTime <= currentDateTime) {
+            alert("Please select a future date and time for your appointment.");
+            return false;
+        }
+
+        // Proceed with showing the confirmation modal
+        var doctor = $("#doctor option:selected").text();
+        $("#confirmDoctorName").text(doctor);
+        $("#confirmSpecialization").text("<?php echo htmlentities($specilization); ?>");
+        $("#confirmDate").text(date);
+        $("#confirmTime").text(time);
+        
+        $("#confirmationModal").modal('show');
     });
+
+    // Handle the actual form submission
+    $("#confirmAppointment").click(function() {
+        // Submit the form directly
+        document.getElementById("realSubmitBtn").click();
+    });
+});
+
 
     function getdoctor(val) {
         $.ajax({

@@ -96,9 +96,8 @@ if (strlen($_SESSION['id']) == 0) {
 </head>
 <body>
     <div id="app">		
-        <?php include('include/sidebar.php'); ?>
+        
         <div class="app-content">
-            <?php include('include/header.php'); ?>
             <div class="main-content">
                 <div class="wrap-content container" id="container">
                     <section id="page-title">
@@ -106,12 +105,12 @@ if (strlen($_SESSION['id']) == 0) {
                             <div class="col-sm-8">
                                 <h1 class="mainTitle"><strong>Add Patient</strong></h1>
                             </div>
-                            <ol class="breadcrumb">
+                            <!-- <ol class="breadcrumb">
                                 <li></li>
                                 <li class="active">
                                     <span>Add Patient</span>
                                 </li>
-                            </ol>
+                            </ol> -->
                         </div>
                     </section>
                     <div class="container-fluid container-fullw bg-white">
@@ -203,7 +202,6 @@ if (strlen($_SESSION['id']) == 0) {
             </div>
         </div>
 
-        <?php include('include/footer.php'); ?>
         <?php include('include/setting.php'); ?>
     </div>
 
